@@ -1,13 +1,17 @@
+@import url('https://fonts.googleapis.com/css?family=Lato:300');
+
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
     user-select: none;
     cursor: default;
+    backface-visibility: hidden;
 }
 
 body {
-    font-family: 'Arial', sans-serif;
+    font-family: 'Lato', sans-serif;
+    font-weight: 300;
     letter-spacing: .02em;
 }
 
@@ -20,11 +24,11 @@ body {
 
 .main-button {
     position: absolute;
-    bottom: 20px;
+    bottom: 60px;
     left: 50%;
     transform: translateX(-50%);
-    width: 50px;
-    height: 50px;
+    width: 120px;
+    height: 120px;
     border-radius: 50%;
     cursor: pointer;
 }
@@ -33,12 +37,12 @@ body {
     position: absolute;
     top: 50%;
     left: 50%;
-    transform: translate(-50%, -50.5%);
-    width: 286px;
-    height: 502px;
-    border: 2px solid rgba(0,0,0,.4);
+    transform: translate(-50%, -50.3%);
+    width: 782px;
+    height: 1392px;
+    // border: 2px solid rgba(0,0,0,.4);
     z-index: 1;
-    border-radius: 1%;
+    // border-radius: 1%;
     overflow: hidden;
 
     img.bg {
@@ -68,14 +72,15 @@ body {
         left: 50%;
         bottom: 0;
         transform: translateX(-50%);
-        width: calc(100% - 50px);
-        height: calc(100% - 24px);
+        width: 84%;
+        height: 95%;
+        z-index: 1;
     }
 
     .dock {
         position: absolute;
         bottom: 0;
-        height: 64px;
+        height: 182px;
         width: 100%;
         background-color: rgba(255,255,255,.2);
         z-index: 0;
@@ -84,8 +89,8 @@ body {
 
     .breadcrumb {
         position: absolute;
-        bottom: 66px;
-        height: 10px;
+        bottom: 190px;
+        height: 14px;
         width: 100%;
         z-index: 0;
         pointer-events: none;
@@ -93,9 +98,9 @@ body {
         justify-content: center;
 
         .dot {
-            height: 6px;
-            width: 6px;
-            margin: 0 4px;
+            height: 14px;
+            width: 14px;
+            margin: 0 8px;
             border-radius: 50%;
             background-color: rgba(255,255,255,.4);
 
@@ -110,8 +115,8 @@ body {
         position: absolute;
         top: 0;
         left: 0;
-        width: 40px;
-        height: 40px;
+        width: 116px;
+        height: 116px;
         transform-origin: center 75%;
         transition: all .3s ease;
         animation: fadeIn 0.8s ease-in-out forwards;
@@ -184,8 +189,8 @@ body {
                 }
 
                 &::after {
-                    bottom: -15px;
-                    font-size: 9px;
+                    bottom: -30px;
+                    font-size: 24px;
                     transition: opacity .3s ease;
                 }
             }
@@ -239,16 +244,17 @@ body {
             color: white;
             font-size: 10px;
             background-size: 100%;
+            background-repeat: no-repeat;
 
             &::after {
                 content: attr(data-name);
                 position: absolute;
-                bottom: -15px;
+                bottom: -30px;
                 width: 200px;
                 left: 50%;
                 transform: translate(-50%);
                 color: white;
-                font-size: 9px;
+                font-size: 24px;
                 text-align: center;
                 margin: 10% 0 0 0;
                 text-shadow: 0 2px 4px black;

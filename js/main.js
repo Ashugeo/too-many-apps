@@ -1,7 +1,7 @@
 /* global $ */
 
-const itemWidth = 64;
-const itemHeight = 66;
+const itemWidth = 180;
+const itemHeight = 188;
 const moveMargin = 10;
 let apps = [];
 let hold = false;
@@ -32,7 +32,7 @@ function move(elem) {
     const pos = getPos(elem);
 
     if (pos >= 24 && pos <= 27) {
-        elem.css({ left: (pos % 4) * itemWidth, top: (Math.floor(pos / 4) * itemHeight) + 20 });
+        elem.css({ left: (pos % 4) * itemWidth, top: (Math.floor(pos / 4) * itemHeight) + 42 });
     } else {
         elem.css({ left: (pos % 4) * itemWidth, top: Math.floor(pos / 4) * itemHeight });
     }
@@ -66,9 +66,9 @@ function newGroup() {
 }
 
 /**
- * Initialize dragging mode
- * @param  {Object} e event
- */
+* Initialize dragging mode
+* @param  {Object} e event
+*/
 function drag(e) {
     dragging = true;
     oldPosX = $(e.currentTarget).offset().left - e.pageX;
@@ -118,7 +118,7 @@ $(global.document).ready(() => {
             apps = data;
 
             for (let i = 0; i < 4; i += 1) {
-                $('.apps').append(`<div id="${i}" pos="${i + 24}" class="item" style="left:${((i + 24) % 4) * itemWidth}px; top: ${(Math.floor((i + 24) / 4) * itemHeight) + 20}px;"><div class="item-anim"><div class="icon" style="background-image: url(img/${apps[i].img})" data-name="${apps[i].name}" data-cat="${apps[i + 4].cat}"></div></div>`);
+                $('.apps').append(`<div id="${i}" pos="${i + 24}" class="item" style="left:${((i + 24) % 4) * itemWidth}px; top: ${(Math.floor((i + 24) / 4) * itemHeight) + 42}px;"><div class="item-anim"><div class="icon" style="background-image: url(img/${apps[i].img})" data-name="${apps[i].name}" data-cat="${apps[i + 4].cat}"></div></div>`);
             }
 
             clock(0);
@@ -188,10 +188,11 @@ $(global.document).on('click', '.group', (e) => {
 
 $(global.document).on('mousemove', (e) => {
     if (dragging) {
-        $('.dragging').css({ left: ((e.pageX - appsOffset.left) + oldPosX), top: ((e.pageY - appsOffset.top) + oldPosY) });
+        const newX = (e.pageX - appsOffset.left) + oldPosX;
+        const newY = (e.pageY - appsOffset.top) + oldPosY;
 
-        const newX = $('.dragging').offset().left;
-        const newY = $('.dragging').offset().top;
+        $('.dragging').css({ left: newX, top: newY });
+
         const newRow = Math.max(Math.floor(((newY - appsOffset.top) + 20) / itemHeight), 0);
 
         $('.item').each((index, elem) => {
@@ -215,7 +216,7 @@ $(global.document).on('mousemove', (e) => {
                             const thisItem = $(`.item[pos="${i}"]`);
                             const thisPos = getPos(thisItem);
                             thisItem.attr('pos', thisPos + 1);
-                            if (!thisItem.hasClass('dragging') || !thisItem.hasClass('moving')) {
+                            if (!thisItem.hasClass('dragging')) {
                                 move(thisItem);
                             }
                         }
@@ -224,7 +225,7 @@ $(global.document).on('mousemove', (e) => {
                             const thisItem = $(`.item[pos="${i}"]`);
                             const thisPos = getPos(thisItem);
                             thisItem.attr('pos', thisPos - 1);
-                            if (!thisItem.hasClass('dragging') || !thisItem.hasClass('moving')) {
+                            if (!thisItem.hasClass('dragging')) {
                                 move(thisItem);
                             }
                         }
