@@ -177,12 +177,12 @@ $(global.document).on('click', '.main-button', () => {
     $('.container').removeClass('draggable');
 });
 
-$(global.document).on('click', '.group', () => {
-    $(this).toggleClass('open');
+$(global.document).on('click', '.group', (e) => {
+    $(e.currentTarget).toggleClass('open');
 
     $('.container img.bg').addClass('blur');
-    $('.item:not(.open)').each(() => {
-        $(this).addClass('blur');
+    $('.item:not(.open)').each((index, elem) => {
+        $(elem).addClass('blur');
     });
 });
 
