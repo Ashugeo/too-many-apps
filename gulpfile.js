@@ -8,7 +8,7 @@ const webpackStream = require('webpack-stream');
 const webpack = require('webpack');
 
 // Compile game assets for production
-gulp.task('build', () => {
+gulp.task('default', () => {
     const css = gulp.src('css/**/*.scss')
         .pipe(sourcemaps.init())
         .pipe(sass())

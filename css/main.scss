@@ -9,17 +9,27 @@
     backface-visibility: hidden;
 }
 
-body {
+html, body {
     font-family: 'Lato', sans-serif;
     font-weight: 300;
     letter-spacing: .02em;
+    height: 100%;
+    width: 100%;
 }
 
 .wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+}
+
+.target {
     position: absolute;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
+    height: 10px;
+    width: 10px;
+    background-color: red;
+    z-index: 999999;
 }
 
 .main-button {

@@ -2,7 +2,7 @@
 
 const itemWidth = 180;
 const itemHeight = 188;
-const moveMargin = 10;
+const moveMargin = 50;
 let apps = [];
 let hold = false;
 let dragging = false;
@@ -14,6 +14,8 @@ let merge;
 let oldPosX;
 let oldPosY;
 let newPos;
+
+const zoom = 0.3;
 
 /**
 * Get the current position of the element
@@ -71,8 +73,9 @@ function newGroup() {
 */
 function drag(e) {
     dragging = true;
-    oldPosX = $(e.currentTarget).offset().left - e.pageX;
-    oldPosY = $(e.currentTarget).offset().top - e.pageY;
+    oldPosX = e.pageX - $(e.currentTarget)[0].getBoundingClientRect().left;
+    oldPosY = e.pageY - $(e.currentTarget)[0].getBoundingClientRect().top;
+
     newPos = getPos($(e.currentTarget));
     $(e.currentTarget).addClass('dragging');
 }
@@ -110,7 +113,8 @@ function reset() {
 }
 
 $(global.document).ready(() => {
-    appsOffset = $('.apps').offset();
+    $('.phone').css('transform', `scale(${zoom})`);
+    appsOffset = $('.apps')[0].getBoundingClientRect();
 
     $.ajax({
         url: 'apps.json',
@@ -124,10 +128,19 @@ $(global.document).ready(() => {
             clock(0);
         },
     });
+
+    setTimeout(() => {
+        $('.item').each((index, elem) => {
+            const item = $(elem);
+            const x = (item[0].getBoundingClientRect().left - appsOffset.left) * (1 / zoom);
+            const y = (item[0].getBoundingClientRect().top - appsOffset.top) * (1 / zoom);
+            $('.apps').append(`<div class="target" style="top: ${y}px; left: ${x}px;"></div>`);
+        });
+    }, 2000);
 });
 
 $(global.window).on('resize', () => {
-    appsOffset = $('.apps').offset();
+    appsOffset = $('.apps')[0].getBoundingClientRect();
 });
 
 $(global.document).on('mousedown', '.item', (e) => {
@@ -188,8 +201,8 @@ $(global.document).on('click', '.group', (e) => {
 
 $(global.document).on('mousemove', (e) => {
     if (dragging) {
-        const newX = (e.pageX - appsOffset.left) + oldPosX;
-        const newY = (e.pageY - appsOffset.top) + oldPosY;
+        const newX = ((e.pageX - appsOffset.left) - oldPosX) * (1 / zoom);
+        const newY = ((e.pageY - appsOffset.top) - oldPosY) * (1 / zoom);
 
         $('.dragging').css({ left: newX, top: newY });
 
