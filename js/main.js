@@ -15,7 +15,7 @@ let oldPosX;
 let oldPosY;
 let newPos;
 
-const zoom = 0.2;
+const zoom = 0.5;
 
 /**
 * Get the current position of the element
@@ -128,15 +128,6 @@ $(global.document).ready(() => {
             clock(0);
         },
     });
-
-    // setTimeout(() => {
-    //     $('.item').each((index, elem) => {
-    //         const item = $(elem);
-    //         const x = (item[0].getBoundingClientRect().left - appsOffset.left) * (1 / zoom);
-    //         const y = (item[0].getBoundingClientRect().top - appsOffset.top) * (1 / zoom);
-    //         $('.apps').append(`<div class="target" style="top: ${y}px; left: ${x}px;"></div>`);
-    //     });
-    // }, 2000);
 });
 
 $(global.window).on('resize', () => {
@@ -201,27 +192,26 @@ $(global.document).on('click', '.group', (e) => {
 
 $(global.document).on('mousemove', (e) => {
     if (dragging) {
-        const newX = ((e.pageX - appsOffset.left) - oldPosX) * (1 / zoom);
-        const newY = ((e.pageY - appsOffset.top) - oldPosY) * (1 / zoom);
+        const newX = Math.round(((e.pageX - appsOffset.left) - oldPosX) * (1 / zoom));
+        const newY = Math.round(((e.pageY - appsOffset.top) - oldPosY) * (1 / zoom));
 
         $('.dragging').css({ left: newX, top: newY });
 
-        let newRow = (newY - appsOffset.top) / itemHeight;
+        let newRow = newY / itemHeight;
         newRow = Math.max(Math.floor(newRow), 0);
 
-        // console.log(appsOffset.top);
-        // console.log(newRow);
+        // console.log('newX:', newX, 'newY:', newY, 'newRow:', newRow);
 
-        $('.item').each((index, elem) => {
+        $('.item:not(.dragging)').each((index, elem) => {
             const item = $(elem);
             const pos = getPos(item);
-            const x = item[0].getBoundingClientRect().left;
-            const y = item[0].getBoundingClientRect().top;
+            const x = parseInt(item.css('left'), 10);
+            const y = parseInt(item.css('top'), 10);
 
-            let row = (((y * (1 / zoom)) - appsOffset.top) + 20) / itemHeight;
+            let row = y / itemHeight;
             row = Math.max(Math.floor(row), 0);
 
-            console.log(newRow, row);
+            // console.log(item, 'x:', x, 'y:', y, 'row:', row);
 
             const moveLeft = (newX > x + moveMargin && newPos < pos);
             const moveRight = (newX < x - moveMargin && newPos > pos);
