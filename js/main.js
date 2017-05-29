@@ -1,12 +1,17 @@
 /* global $ */
 
+const zoom = 0.5;
 const itemWidth = 180;
 const itemHeight = 188;
 const moveMargin = 10;
 const rowMargin = 20;
+const swipeMargin = 200;
+let current = 0;
 let apps = [];
+let originScreenPos = [];
 let hold = false;
 let dragging = false;
+let swiping = false;
 let appsOffset;
 let holdTimeout;
 let groupTimeout;
@@ -15,8 +20,7 @@ let merge;
 let oldPosX;
 let oldPosY;
 let newPos;
-
-const zoom = 0.5;
+let startSwipe;
 
 /**
 * Get the current position of the element
@@ -72,13 +76,97 @@ function newGroup() {
 * Initialize dragging mode
 * @param  {Object} e event
 */
-function drag(e) {
+function enableDrag(e) {
     dragging = true;
     oldPosX = e.pageX - $(e.currentTarget)[0].getBoundingClientRect().left;
     oldPosY = e.pageY - $(e.currentTarget)[0].getBoundingClientRect().top;
 
-    newPos = getPos($(e.currentTarget));
-    $(e.currentTarget).addClass('dragging');
+    // console.log($(e.currentTarget), $(e.currentTarget).closest('.item'));
+
+    newPos = getPos($(e.currentTarget).closest('.item'));
+    $(e.currentTarget).closest('.item').addClass('dragging');
+}
+
+/**
+* Drag an item around
+* @param  {Object} e event
+*/
+function drag(e) {
+    const newX = Math.round(((e.pageX - appsOffset.left) - oldPosX) * (1 / zoom));
+    const newY = Math.round(((e.pageY - appsOffset.top) - oldPosY) * (1 / zoom));
+
+    $('.dragging').css({ left: newX, top: newY });
+
+    let newRow = (newY + rowMargin) / itemHeight;
+    newRow = Math.max(Math.floor(newRow), 0);
+
+    // console.log('newX:', newX, 'newY:', newY, 'newRow:', newRow);
+
+    $('.item:not(.dragging)').each((index, elem) => {
+        const item = $(elem);
+        const pos = getPos(item);
+        const x = parseInt(item.css('left'), 10);
+        const row = Math.floor(pos / 4);
+
+        // console.log(item, 'x:', x, 'y:', y, 'row:', row);
+
+        const moveLeft = (newX > x + moveMargin && newPos < pos);
+        const moveRight = (newX < x - moveMargin && newPos > pos);
+        const sameRow = (newRow === row);
+
+        if (sameRow) {
+            if (moveLeft || moveRight) {
+                const diff = pos - newPos;
+                const from = newPos;
+                const to = pos;
+                if (newPos > pos) {
+                    for (let i = from; i >= to; i -= 1) {
+                        const thisItem = $(`.item[pos="${i}"]`);
+                        const thisPos = getPos(thisItem);
+                        thisItem.attr('pos', thisPos + 1);
+                        if (!thisItem.hasClass('dragging')) {
+                            move(thisItem);
+                        }
+                    }
+                } else if (pos > newPos) {
+                    for (let i = from; i <= to; i += 1) {
+                        const thisItem = $(`.item[pos="${i}"]`);
+                        const thisPos = getPos(thisItem);
+                        thisItem.attr('pos', thisPos - 1);
+                        if (!thisItem.hasClass('dragging')) {
+                            move(thisItem);
+                        }
+                    }
+                }
+                newPos += diff;
+                $('.dragging').attr('pos', newPos);
+            }
+        }
+    });
+}
+
+/**
+* Swipe screens
+* @param  {Object} e event
+*/
+function swipe(e) {
+    $('.screen').each((index, elem) => {
+        let screenPos = (((e.pageX - appsOffset.left) - startSwipe) * (1 / zoom));
+        screenPos += originScreenPos[index];
+        $(elem).css('left', screenPos);
+    });
+}
+
+/**
+ * Adjust screens after a swipe
+ * @param  {number} screen screen to display
+ */
+function adjustSwipe(screen) {
+    $('.screen').each((index, elem) => {
+        $(elem).css('left', `${(-screen + index) * 100}%`);
+    });
+    $('.breadcrumb .dot.selected').removeClass('selected');
+    $('.breadcrumb .dot').eq(screen).addClass('selected');
 }
 
 /**
@@ -86,7 +174,7 @@ function drag(e) {
 * @param  {number} i position to start at
 */
 function clock(i) {
-    $('.apps').append(`<div id="${i + 4}" pos="${i}" class="item" style="left:${(i % 4) * itemWidth}px; top: ${Math.floor(i / 4) * itemHeight}px;"><div class="item-anim"><div class="icon" style="background-image: url(img/${apps[i + 4].img})" data-name="${apps[i + 4].name}" data-cat="${apps[i + 4].cat}"></div></div>`);
+    $('.apps').eq(0).append(`<div id="${i + 4}" pos="${i}" class="item" style="left:${(i % 4) * itemWidth}px; top: ${Math.floor(i / 4) * itemHeight}px;"><div class="item-anim"><div class="icon" style="background-image: url(img/${apps[i + 4].img})" data-name="${apps[i + 4].name}" data-cat="${apps[i + 4].cat}"></div></div>`);
 
     if (i < apps.length - 5) {
         setTimeout(() => {
@@ -101,6 +189,8 @@ function clock(i) {
 function reset() {
     hold = false;
     dragging = false;
+    swiping = false;
+    originScreenPos = [];
     move($('.dragging'));
     clearTimeout(holdTimeout);
     $('.dragging').removeClass('dragging');
@@ -141,18 +231,42 @@ $(global.document).on('mousedown', '.item', (e) => {
         holdTimeout = setTimeout(() => {
             if (hold) {
                 $('.container').addClass('draggable');
-                drag(e);
+                enableDrag(e);
             }
         }, 1000);
     } else {
-        drag(e);
+        enableDrag(e);
     }
+    return false;
+});
+
+$(global.document).on('mousedown', '.screens', (event) => {
+    startSwipe = Math.round(event.pageX - appsOffset.left);
+    swiping = true;
+    $('.screen').removeClass('transition');
+    $('.screen').each((index, elem) => {
+        originScreenPos.push(parseInt($(elem).css('left'), 10));
+    });
 });
 
 $(global.document).on('mouseup', () => {
     if (merge) {
         newGroup();
+    } else if (swiping) {
+        $('.screen').addClass('transition');
+
+        const diff = parseInt($('.screen').eq(0).css('left'), 10) - originScreenPos[0];
+        if (diff > swipeMargin) {
+            current -= 1;
+        } else if (diff < -swipeMargin) {
+            current += 1;
+        }
+        current = Math.min(Math.max(current, 0), 2);
+
+        console.log(current);
+        adjustSwipe(current);
     }
+
     reset();
 });
 
@@ -193,59 +307,8 @@ $(global.document).on('click', '.group', (e) => {
 
 $(global.document).on('mousemove', (e) => {
     if (dragging) {
-        const newX = Math.round(((e.pageX - appsOffset.left) - oldPosX) * (1 / zoom));
-        const newY = Math.round(((e.pageY - appsOffset.top) - oldPosY) * (1 / zoom));
-
-        $('.dragging').css({ left: newX, top: newY });
-
-        let newRow = (newY + rowMargin) / itemHeight;
-        newRow = Math.max(Math.floor(newRow), 0);
-
-        // console.log('newX:', newX, 'newY:', newY, 'newRow:', newRow);
-
-        $('.item:not(.dragging)').each((index, elem) => {
-            const item = $(elem);
-            const pos = getPos(item);
-            const x = parseInt(item.css('left'), 10);
-            const y = parseInt(item.css('top'), 10);
-
-            let row = (y + rowMargin) / itemHeight;
-            row = Math.max(Math.floor(row), 0);
-
-            // console.log(item, 'x:', x, 'y:', y, 'row:', row);
-
-            const moveLeft = (newX > x + moveMargin && newPos < pos);
-            const moveRight = (newX < x - moveMargin && newPos > pos);
-            const sameRow = (newRow === row);
-
-            if (sameRow) {
-                if (moveLeft || moveRight) {
-                    const diff = pos - newPos;
-                    const from = newPos;
-                    const to = pos;
-                    if (newPos > pos) {
-                        for (let i = from; i >= to; i -= 1) {
-                            const thisItem = $(`.item[pos="${i}"]`);
-                            const thisPos = getPos(thisItem);
-                            thisItem.attr('pos', thisPos + 1);
-                            if (!thisItem.hasClass('dragging')) {
-                                move(thisItem);
-                            }
-                        }
-                    } else if (pos > newPos) {
-                        for (let i = from; i <= to; i += 1) {
-                            const thisItem = $(`.item[pos="${i}"]`);
-                            const thisPos = getPos(thisItem);
-                            thisItem.attr('pos', thisPos - 1);
-                            if (!thisItem.hasClass('dragging')) {
-                                move(thisItem);
-                            }
-                        }
-                    }
-                    newPos += diff;
-                    $('.dragging').attr('pos', newPos);
-                }
-            }
-        });
+        drag(e);
+    } else if (swiping) {
+        swipe(e);
     }
 });

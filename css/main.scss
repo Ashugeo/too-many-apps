@@ -78,6 +78,30 @@ html, body {
         }
     }
 
+    .screens {
+        position: absolute;
+        top: 0;
+        height: 87%;
+        width: 100%;
+
+        .screen {
+            position: absolute;
+            top: 0;
+            height: 100%;
+            width: 100%;
+
+            &.transition {
+                transition: all .3s ease;
+            }
+        }
+
+        @for $i from 1 through 3 {
+            .screen:nth-child(#{$i}) {
+                left: ($i - 1) * 100%;
+            }
+        }
+    }
+
     .apps {
         position: absolute;
         left: 50%;
