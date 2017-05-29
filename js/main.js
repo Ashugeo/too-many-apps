@@ -3,6 +3,7 @@
 const itemWidth = 180;
 const itemHeight = 188;
 const moveMargin = 10;
+const rowMargin = 20;
 let apps = [];
 let hold = false;
 let dragging = false;
@@ -197,7 +198,7 @@ $(global.document).on('mousemove', (e) => {
 
         $('.dragging').css({ left: newX, top: newY });
 
-        let newRow = newY / itemHeight;
+        let newRow = (newY + rowMargin) / itemHeight;
         newRow = Math.max(Math.floor(newRow), 0);
 
         // console.log('newX:', newX, 'newY:', newY, 'newRow:', newRow);
@@ -208,7 +209,7 @@ $(global.document).on('mousemove', (e) => {
             const x = parseInt(item.css('left'), 10);
             const y = parseInt(item.css('top'), 10);
 
-            let row = y / itemHeight;
+            let row = (y + rowMargin) / itemHeight;
             row = Math.max(Math.floor(row), 0);
 
             // console.log(item, 'x:', x, 'y:', y, 'row:', row);
