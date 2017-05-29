@@ -149,9 +149,9 @@ html, body {
         }
 
         &.highlight-group {
-            border: 7px solid transparent;
+            border: 15px solid transparent;
             background-color: rgba(255,255,255,.4);
-            margin: -7px;
+            margin: -15px;
         }
 
         &.group {
@@ -193,25 +193,24 @@ html, body {
 
                 &::before {
                     position: fixed;
-                    bottom: 400px;
-                    font-size: 20px;
+                    bottom: 86%;
+                    font-size: 40px;
                     opacity: 0;
                     transition: opacity .1s ease;
                 }
 
                 &::after {
-                    bottom: -30px;
+                    bottom: -34px;
                     font-size: 24px;
                     transition: opacity .3s ease;
                 }
             }
 
             &.open {
-                top: 100px !important;
-                left: -16px !important;
-                width: 264px;
-                height: 264px;
-                border-radius: 10px;
+                top: 20% !important;
+                left: -5% !important;
+                width: 110%;
+                height: 55%;
                 z-index: 20;
 
                 .item-anim {
@@ -260,7 +259,7 @@ html, body {
             &::after {
                 content: attr(data-name);
                 position: absolute;
-                bottom: -30px;
+                bottom: -34px;
                 width: 200px;
                 left: 50%;
                 transform: translate(-50%);
@@ -269,6 +268,7 @@ html, body {
                 text-align: center;
                 margin: 10% 0 0 0;
                 text-shadow: 0 2px 4px black;
+                backface-visibility: hidden;
             }
         }
     }
