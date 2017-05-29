@@ -39,7 +39,7 @@ function move(elem) {
     const pos = getPos(elem);
 
     if (pos >= 24 && pos <= 27) {
-        elem.css({ left: (pos % 4) * itemWidth, top: (Math.floor(pos / 4) * itemHeight) + 42 });
+        elem.css({ left: (pos % 4) * itemWidth, top: '20px' });
     } else {
         elem.css({ left: (pos % 4) * itemWidth, top: Math.floor(pos / 4) * itemHeight });
     }
@@ -213,7 +213,7 @@ $(global.document).ready(() => {
             apps = data;
 
             for (let i = 0; i < 4; i += 1) {
-                $('.apps').append(`<div id="${i}" pos="${i + 24}" class="item" style="left:${((i + 24) % 4) * itemWidth}px; top: ${(Math.floor((i + 24) / 4) * itemHeight) + 42}px;"><div class="item-anim"><div class="icon" style="background-image: url(img/${apps[i].img})" data-name="${apps[i].name}" data-cat="${apps[i + 4].cat}"></div></div>`);
+                $('.dock .apps').append(`<div id="${i}" pos="${i + 24}" class="item" style="left:${((i + 24) % 4) * itemWidth}px; top: 20px;"><div class="item-anim"><div class="icon" style="background-image: url(img/${apps[i].img})" data-name="${apps[i].name}" data-cat="${apps[i + 4].cat}"></div></div>`);
             }
 
             clock(0);
@@ -262,8 +262,6 @@ $(global.document).on('mouseup', () => {
             current += 1;
         }
         current = Math.min(Math.max(current, 0), 2);
-
-        console.log(current);
         adjustSwipe(current);
     }
 

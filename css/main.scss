@@ -120,6 +120,10 @@ html, body {
         background-color: rgba(255,255,255,.2);
         z-index: 0;
         pointer-events: none;
+
+        .apps {
+            height: 100%;
+        }
     }
 
     .breadcrumb {
