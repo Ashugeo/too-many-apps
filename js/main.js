@@ -12,9 +12,13 @@ let originScreenPos = [];
 let hold = false;
 let dragging = false;
 let swiping = false;
+let goingRight = false;
+let goingLeft = false;
 let appsOffset;
 let holdTimeout;
 let groupTimeout;
+let toRightTimeout;
+let toLeftTimeout;
 let under;
 let merge;
 let oldPosX;
@@ -90,6 +94,30 @@ function enableDrag(e) {
 }
 
 /**
+* Swipe screens
+* @param  {Object} e event
+*/
+function swipe(e) {
+    $('.screen').each((index, elem) => {
+        let screenPos = (((e.pageX - appsOffset.left) - startSwipe) * (1 / zoom));
+        screenPos += originScreenPos[index];
+        $(elem).css('left', screenPos);
+    });
+}
+
+/**
+* Adjust screens after a swipe
+* @param  {number} screen screen to display
+*/
+function adjustSwipe(screen) {
+    $('.screen').each((index, elem) => {
+        $(elem).css('left', `${(-screen + index) * 100}%`);
+    });
+    $('.breadcrumb .dot.selected').removeClass('selected');
+    $('.breadcrumb .dot').eq(screen).addClass('selected');
+}
+
+/**
 * Drag an item around
 * @param  {Object} e event
 */
@@ -103,6 +131,36 @@ function drag(e) {
     newRow = Math.max(Math.floor(newRow), 0);
 
     // console.log('newX:', newX, 'newY:', newY, 'newRow:', newRow);
+
+    // console.log(Math.round(appsOffset.left), e.pageX, Math.round(appsOffset.right));
+
+    const toRight = (e.pageX > Math.round(appsOffset.right));
+    const toLeft = (e.pageX < Math.round(appsOffset.left));
+
+    if (toRight && !goingRight) {
+        goingRight = true;
+        toRightTimeout = setTimeout(() => {
+            current += 1;
+            current = Math.min(Math.max(current, 0), 2);
+            adjustSwipe(current);
+            $('.dragging').appendTo(`.screen:nth-child(${current + 1}) .apps`);
+            goingRight = false;
+        }, 500);
+    } else if (toLeft && !goingLeft) {
+        goingLeft = true;
+        toLeftTimeout = setTimeout(() => {
+            current -= 1;
+            current = Math.min(Math.max(current, 0), 2);
+            adjustSwipe(current);
+            $('.dragging').appendTo(`.screen:nth-child(${current + 1}) .apps`);
+            goingLeft = false;
+        }, 500);
+    } else if (!toRight && !toLeft) {
+        goingRight = false;
+        goingLeft = false;
+        clearTimeout(toRightTimeout);
+        clearTimeout(toLeftTimeout);
+    }
 
     $('.item:not(.dragging)').each((index, elem) => {
         const item = $(elem);
@@ -148,35 +206,17 @@ function drag(e) {
 }
 
 /**
-* Swipe screens
-* @param  {Object} e event
-*/
-function swipe(e) {
-    $('.screen').each((index, elem) => {
-        let screenPos = (((e.pageX - appsOffset.left) - startSwipe) * (1 / zoom));
-        screenPos += originScreenPos[index];
-        $(elem).css('left', screenPos);
-    });
-}
-
-/**
-* Adjust screens after a swipe
-* @param  {number} screen screen to display
-*/
-function adjustSwipe(screen) {
-    $('.screen').each((index, elem) => {
-        $(elem).css('left', `${(-screen + index) * 100}%`);
-    });
-    $('.breadcrumb .dot.selected').removeClass('selected');
-    $('.breadcrumb .dot').eq(screen).addClass('selected');
-}
-
-/**
 * Clock system
 * @param  {number} i position to start at
 */
 function clock(i) {
-    $('.apps').eq(0).append(`<div id="${i + 4}" pos="${i}" class="item" style="left:${(i % 4) * itemWidth}px; top: ${Math.floor(i / 4) * itemHeight}px;"><div class="item-anim"><div class="icon" style="background-image: url(img/${apps[i + 4].img})" data-name="${apps[i + 4].name}" data-cat="${apps[i + 4].cat}"></div></div>`);
+    const item = `<div id="${i + 4}" pos="${i}" class="item anim" style="left:${(i % 4) * itemWidth}px; top: ${Math.floor(i / 4) * itemHeight}px;"><div class="item-anim"><div class="icon" style="background-image: url(img/${apps[i + 4].img})" data-name="${apps[i + 4].name}" data-cat="${apps[i + 4].cat}"></div></div>`;
+
+    $('.apps').eq(0).append(item);
+
+    setTimeout(() => {
+        $(`.item#${i + 4}`).removeClass('anim');
+    }, 800);
 
     if (i < apps.length - 5) {
         setTimeout(() => {
@@ -215,7 +255,7 @@ $(global.document).ready(() => {
             apps = data;
 
             for (let i = 0; i < 4; i += 1) {
-                $('.dock .apps').append(`<div id="${i}" pos="${i + 24}" class="item" style="left:${((i + 24) % 4) * itemWidth}px; top: 20px;"><div class="item-anim"><div class="icon" style="background-image: url(img/${apps[i].img})" data-name="${apps[i].name}" data-cat="${apps[i + 4].cat}"></div></div>`);
+                $('.dock .apps').append(`<div id="${i}" pos="${i + 24}" class="item anim" style="left:${((i + 24) % 4) * itemWidth}px; top: 20px;"><div class="item-anim"><div class="icon" style="background-image: url(img/${apps[i].img})" data-name="${apps[i].name}" data-cat="${apps[i + 4].cat}"></div></div>`);
             }
 
             clock(0);

@@ -158,11 +158,14 @@ html, body {
         height: 116px;
         transform-origin: center 75%;
         transition: all .3s ease;
-        animation: fadeIn 0.8s ease-in-out forwards;
         z-index: 2;
         border-radius: 25%;
         border: 0px solid transparent;
         background-repeat: no-repeat;
+
+        &.anim {
+            animation: fadeIn 0.8s ease-in-out forwards;
+        }
 
         &.blur {
             filter: blur(20px);
