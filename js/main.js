@@ -25,6 +25,7 @@ let oldPosX;
 let oldPosY;
 let newPos;
 let startSwipe;
+let swipeSpeed;
 
 /**
 * Get the current position of the element
@@ -98,8 +99,13 @@ function enableDrag(e) {
 * @param  {Object} e event
 */
 function swipe(e) {
+    if (current === 0 && (e.pageX - appsOffset.left) > startSwipe) {
+        swipeSpeed = 0.2;
+    } else {
+        swipeSpeed = 1;
+    }
     $('.screen').each((index, elem) => {
-        let screenPos = (((e.pageX - appsOffset.left) - startSwipe) * (1 / zoom));
+        let screenPos = (((e.pageX - appsOffset.left) - startSwipe) * (1 / zoom)) * swipeSpeed;
         screenPos += originScreenPos[index];
         $(elem).css('left', screenPos);
     });
