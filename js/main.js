@@ -6,6 +6,7 @@ const itemHeight = 188;
 const moveMargin = 10;
 const rowMargin = 20;
 const swipeMargin = 200;
+let screens = 2;
 let current = 0;
 let apps = [];
 let originScreenPos = [];
@@ -80,38 +81,6 @@ function newGroup() {
 }
 
 /**
-* Initialize dragging mode
-* @param  {Object} e event
-*/
-function enableDrag(e) {
-    dragging = true;
-    oldPosX = e.pageX - $(e.currentTarget)[0].getBoundingClientRect().left;
-    oldPosY = e.pageY - $(e.currentTarget)[0].getBoundingClientRect().top;
-
-    // console.log($(e.currentTarget), $(e.currentTarget).closest('.item'));
-
-    newPos = getPos($(e.currentTarget).closest('.item'));
-    $(e.currentTarget).closest('.item').addClass('dragging');
-}
-
-/**
-* Swipe screens
-* @param  {Object} e event
-*/
-function swipe(e) {
-    if (current === 0 && (e.pageX - appsOffset.left) > startSwipe) {
-        swipeSpeed = 0.2;
-    } else {
-        swipeSpeed = 1;
-    }
-    $('.screen').each((index, elem) => {
-        let screenPos = (((e.pageX - appsOffset.left) - startSwipe) * (1 / zoom)) * swipeSpeed;
-        screenPos += originScreenPos[index];
-        $(elem).css('left', screenPos);
-    });
-}
-
-/**
 * Adjust screens after a swipe
 * @param  {number} screen screen to display
 */
@@ -124,7 +93,83 @@ function adjustSwipe(screen) {
 }
 
 /**
-* switch an app from a screen to another
+* Add a screen a and breadcrumb dot
+*/
+function newScreen() {
+    $('.screens').append(`<div class="screen transition" id="${screens}"><div class="apps"></div></div>`);
+    screens += 1;
+    $('.breadcrumb').append('<div class="dot"></div>');
+}
+
+
+/**
+* Remove blank screens and breadcrumb dots
+*/
+function dumpScreens() {
+    let blank = 0;
+
+    $('.screen').each((index, elem) => {
+        if ($(elem).find('.item').length === 0) {
+            $(elem).remove();
+            screens -= 1;
+            blank += 1;
+        }
+
+        $(elem).attr('id', index - blank);
+    });
+
+    while ($(`.screen#${current} .item`).length === 0) {
+        current -= 1;
+    }
+    adjustSwipe(current);
+
+    $('.breadcrumb').empty();
+    for (let i = 0; i < screens; i += 1) {
+        $('.breadcrumb').append('<div class="dot"></div>');
+    }
+    $('.breadcrumb .dot').eq(current).addClass('selected');
+}
+
+/**
+* Initialize dragging mode
+* @param  {Object} e event
+*/
+function enableDrag(e) {
+    dragging = true;
+    oldPosX = e.pageX - $(e.currentTarget)[0].getBoundingClientRect().left;
+    oldPosY = e.pageY - $(e.currentTarget)[0].getBoundingClientRect().top;
+
+    // console.log($(e.currentTarget), $(e.currentTarget).closest('.item'));
+
+    newPos = getPos($(e.currentTarget).closest('.item'));
+    $(e.currentTarget).closest('.item').addClass('dragging');
+
+    if ($('.screen:last-child .item').length > 0) {
+        newScreen();
+    }
+}
+
+/**
+* Swipe screens
+* @param  {Object} e event
+*/
+function swipe(e) {
+    if (current === 0 && (e.pageX - appsOffset.left) > startSwipe) {
+        swipeSpeed = 0.2;
+    } else if (current === parseInt($('.screen:last-child').attr('id'), 10) && (e.pageX - appsOffset.left) < startSwipe) {
+        swipeSpeed = 0.2;
+    } else {
+        swipeSpeed = 1;
+    }
+    $('.screen').each((index, elem) => {
+        let screenPos = (((e.pageX - appsOffset.left) - startSwipe) * (1 / zoom)) * swipeSpeed;
+        screenPos += originScreenPos[index];
+        $(elem).css('left', screenPos);
+    });
+}
+
+/**
+* Switch an app from a screen to another
 * @param  {Object} elem   element
 * @param  {number} screen screen to move element to
 */
@@ -178,7 +223,7 @@ function drag(e) {
         goingRight = true;
         toRightTimeout = setTimeout(() => {
             current += 1;
-            current = Math.min(Math.max(current, 0), 2);
+            current = Math.min(Math.max(current, 0), screens - 1);
             adjustSwipe(current);
             switchScreen($('.dragging'), current);
             goingRight = false;
@@ -187,7 +232,7 @@ function drag(e) {
         goingLeft = true;
         toLeftTimeout = setTimeout(() => {
             current -= 1;
-            current = Math.min(Math.max(current, 0), 2);
+            current = Math.min(Math.max(current, 0), screens - 1);
             adjustSwipe(current);
             switchScreen($('.dragging'), current);
             goingLeft = false;
@@ -340,7 +385,7 @@ $(global.document).on('mouseup', () => {
         } else if (diff < -swipeMargin) {
             current += 1;
         }
-        current = Math.min(Math.max(current, 0), 2);
+        current = Math.min(Math.max(current, 0), screens - 1);
         adjustSwipe(current);
     }
 
@@ -369,6 +414,7 @@ $(global.document).on('mouseleave', '.item', (e) => {
 });
 
 $(global.document).on('click', '.main-button', () => {
+    dumpScreens();
     reset();
     $('.container').removeClass('draggable');
 });
