@@ -62,13 +62,15 @@ function newGroup() {
     dragging.remove();
 
     const from = getPos(dragging);
-    const to = getPos($('.item:last-child'));
+    const to = $('.item').length;
 
     for (let i = from; i <= to; i += 1) {
         const item = $(`.item[pos="${i}"]`);
-        const pos = getPos(item);
-        item.attr('pos', pos - 1);
-        move(item);
+        if (item.length !== 0) {
+            const pos = getPos(item);
+            item.attr('pos', pos - 1);
+            move(item);
+        }
     }
 }
 
@@ -158,9 +160,9 @@ function swipe(e) {
 }
 
 /**
- * Adjust screens after a swipe
- * @param  {number} screen screen to display
- */
+* Adjust screens after a swipe
+* @param  {number} screen screen to display
+*/
 function adjustSwipe(screen) {
     $('.screen').each((index, elem) => {
         $(elem).css('left', `${(-screen + index) * 100}%`);
