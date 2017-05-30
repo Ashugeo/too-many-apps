@@ -143,7 +143,7 @@ function drag(e) {
             current += 1;
             current = Math.min(Math.max(current, 0), 2);
             adjustSwipe(current);
-            $('.dragging').appendTo(`.screen:nth-child(${current + 1}) .apps`);
+            $('.dragging').appendTo(`.screen#${current} .apps`);
             goingRight = false;
         }, 500);
     } else if (toLeft && !goingLeft) {
@@ -152,7 +152,7 @@ function drag(e) {
             current -= 1;
             current = Math.min(Math.max(current, 0), 2);
             adjustSwipe(current);
-            $('.dragging').appendTo(`.screen:nth-child(${current + 1}) .apps`);
+            $('.dragging').appendTo(`.screen#${current} .apps`);
             goingLeft = false;
         }, 500);
     } else if (!toRight && !toLeft) {
@@ -212,7 +212,7 @@ function drag(e) {
 function clock(i) {
     const item = `<div id="${i + 4}" pos="${i}" class="item anim" style="left:${(i % 4) * itemWidth}px; top: ${Math.floor(i / 4) * itemHeight}px;"><div class="item-anim"><div class="icon" style="background-image: url(img/${apps[i + 4].img})" data-name="${apps[i + 4].name}" data-cat="${apps[i + 4].cat}"></div></div>`;
 
-    $('.apps').eq(0).append(item);
+    $('.screen#0 .apps').append(item);
 
     setTimeout(() => {
         $(`.item#${i + 4}`).removeClass('anim');
@@ -297,7 +297,7 @@ $(global.document).on('mouseup', () => {
     } else if (swiping) {
         $('.screen').addClass('transition');
 
-        const diff = parseInt($('.screen').eq(0).css('left'), 10) - originScreenPos[0];
+        const diff = parseInt($('.screen#0').css('left'), 10) - originScreenPos[0];
         if (diff > swipeMargin) {
             current -= 1;
         } else if (diff < -swipeMargin) {
