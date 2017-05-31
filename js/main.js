@@ -6,6 +6,7 @@ const itemHeight = 188;
 const moveMargin = 10;
 const rowMargin = 20;
 const swipeMargin = 200;
+let id = 0;
 let screens = 2;
 let current = 0;
 let apps = [];
@@ -293,22 +294,43 @@ function drag(e) {
 }
 
 /**
-* Clock system
-* @param  {number} i position to start at
+* Append an app to a screen
+* @param  {number} screen screen to add app to
+* @param  {number} index  index of app in json
 */
-function clock(i) {
-    const item = `<div id="${i + 4}" pos="${i}" class="item anim" style="left:${(i % 4) * itemWidth}px; top: ${Math.floor(i / 4) * itemHeight}px;"><div class="item-anim"><div class="icon" style="background-image: url(img/${apps[i + 4].img})" data-name="${apps[i + 4].name}" data-cat="${apps[i + 4].cat}"></div></div>`;
+function appendApp(screen, i) {
+    const icons = apps[screen + 1].icons;
+    const item = `<div id="${id}" pos="${i}" class="item anim" style="left:${(i % 4) * itemWidth}px; top: ${Math.floor(i / 4) * itemHeight}px;"><div class="item-anim"><div class="icon" style="background-image: url(img/${icons[i].img})" data-name="${icons[i].name}" data-cat="${icons[i].cat}"></div></div>`;
 
-    $('.screen#0 .apps').append(item);
+    $(`.screen#${screen} .apps`).append(item);
 
     setTimeout(() => {
-        $(`.item#${i + 4}`).removeClass('anim');
+        console.log($(`.item[id="${id}"]`));
+        $(`.item#${id}`).removeClass('anim');
     }, 800);
 
-    if (i < apps.length - 5) {
+    id += 1;
+
+    if (i < icons.length - 1) {
         setTimeout(() => {
-            clock(i + 1);
+            appendApp(screen, i + 1);
         }, 50);
+    }
+
+    // if (screen === 0 && i === icons.length - 1) {
+    //     setTimeout(() => {
+    //         $('.item.anim').removeClass('anim');
+    //     }, 800);
+    // }
+}
+
+/**
+* Display default apps
+*/
+function defaultApps() {
+    for (let i = 1; i < apps.length; i += 1) {
+        console.log(i, apps[i]);
+        appendApp(i - 1, 0);
     }
 }
 
@@ -339,13 +361,15 @@ $(global.document).ready(() => {
     $.ajax({
         url: 'apps.json',
         success: (data) => {
-            apps = data;
+            const icons = data.screens[0].icons;
 
-            for (let i = 0; i < 4; i += 1) {
-                $('.dock .apps').append(`<div id="${i}" pos="${i + 24}" class="item anim" style="left:${((i + 24) % 4) * itemWidth}px; top: 20px;"><div class="item-anim"><div class="icon" style="background-image: url(img/${apps[i].img})" data-name="${apps[i].name}" data-cat="${apps[i + 4].cat}"></div></div>`);
+            for (let i = 0; i < apps.length; i += 1) {
+                $('.dock .apps').append(`<div id="${id}" pos="${i}" class="item anim" style="left:${(i % 4) * itemWidth}px; top: 20px;"><div class="item-anim"><div class="icon" style="background-image: url(img/${icons[i].img})" data-name="${icons[i].name}" data-cat="${icons[i].cat}"></div></div>`);
+                id += 1;
             }
 
-            clock(0);
+            apps = data.screens;
+            defaultApps();
         },
     });
 });
