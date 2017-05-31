@@ -79,7 +79,7 @@ html, body {
     .screens {
         position: absolute;
         top: 0;
-        height: 87%;
+        height: 1212px;
         width: 100%;
 
         .screen {
@@ -105,15 +105,15 @@ html, body {
         left: 50%;
         bottom: 0;
         transform: translateX(-50%);
-        width: 84%;
-        height: 95%;
+        width: 656px;
+        height: 1140px;
         z-index: 1;
     }
 
     .dock {
         position: absolute;
         bottom: 0;
-        height: 182px;
+        height: 180px;
         width: 100%;
         background-color: rgba(255,255,255,.2);
         z-index: 0;
@@ -175,6 +175,11 @@ html, body {
             opacity: .8;
             z-index: 10;
             pointer-events: none;
+        }
+
+        &.swiping {
+            margin-top: 72px;
+            margin-left: 63px;
         }
 
         &.highlight-group {

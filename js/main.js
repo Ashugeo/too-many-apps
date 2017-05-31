@@ -177,23 +177,28 @@ function switchScreen(elem, screen) {
     if (elem && screen !== null) {
         const originScreen = parseInt(elem.closest('.screen').attr('id'), 10);
         if (originScreen !== screen) {
-            const from = getPos(elem);
-            const to = $(`.screen#${originScreen} .item`).length;
+            elem.appendTo('.container');
+            elem.addClass('swiping');
             setTimeout(() => {
-                for (let i = from; i <= to; i += 1) {
-                    const thisItem = $(`.screen#${originScreen} .item[pos="${i}"]`);
-                    if (thisItem.length !== 0) {
-                        const thisPos = getPos(thisItem);
-                        thisItem.attr('pos', thisPos - 1);
-                        if (!thisItem.hasClass('dragging')) {
-                            move(thisItem);
+                const from = getPos(elem);
+                const to = $(`.screen#${originScreen} .item`).length;
+                setTimeout(() => {
+                    for (let i = from; i <= to; i += 1) {
+                        const thisItem = $(`.screen#${originScreen} .item[pos="${i}"]`);
+                        if (thisItem.length !== 0) {
+                            const thisPos = getPos(thisItem);
+                            thisItem.attr('pos', thisPos - 1);
+                            if (!thisItem.hasClass('dragging')) {
+                                move(thisItem);
+                            }
                         }
                     }
-                }
+                }, 300);
+                elem.attr('pos', $(`.screen#${screen} .item`).length);
+                elem.removeClass('swiping');
+                elem.appendTo(`.screen#${screen} .apps`);
+                newPos = getPos($('.dragging'));
             }, 300);
-            elem.attr('pos', $(`.screen#${screen} .item`).length);
-            elem.appendTo(`.screen#${screen} .apps`);
-            newPos = getPos($('.dragging'));
         }
     }
 }
