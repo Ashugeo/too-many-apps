@@ -6,7 +6,6 @@ const itemHeight = 188;
 const moveMargin = 10;
 const rowMargin = 20;
 const swipeMargin = 200;
-let id = 0;
 let screens = 2;
 let current = 0;
 let apps = [];
@@ -300,16 +299,9 @@ function drag(e) {
 */
 function appendApp(screen, i) {
     const icons = apps[screen + 1].icons;
-    const item = `<div id="${id}" pos="${i}" class="item anim" style="left:${(i % 4) * itemWidth}px; top: ${Math.floor(i / 4) * itemHeight}px;"><div class="item-anim"><div class="icon" style="background-image: url(img/${icons[i].img})" data-name="${icons[i].name}" data-cat="${icons[i].cat}"></div></div>`;
+    const item = `<div id="${icons[i].id}" pos="${i}" class="item anim" style="left:${(i % 4) * itemWidth}px; top: ${Math.floor(i / 4) * itemHeight}px;"><div class="item-anim"><div class="icon" style="background-image: url(img/${icons[i].img})" data-name="${icons[i].name}" data-cat="${icons[i].cat}"></div></div>`;
 
     $(`.screen#${screen} .apps`).append(item);
-
-    setTimeout(() => {
-        console.log($(`.item[id="${id}"]`));
-        $(`.item#${id}`).removeClass('anim');
-    }, 800);
-
-    id += 1;
 
     if (i < icons.length - 1) {
         setTimeout(() => {
@@ -317,11 +309,11 @@ function appendApp(screen, i) {
         }, 50);
     }
 
-    // if (screen === 0 && i === icons.length - 1) {
-    //     setTimeout(() => {
-    //         $('.item.anim').removeClass('anim');
-    //     }, 800);
-    // }
+    if (screen === 0 && i === icons.length - 1) {
+        setTimeout(() => {
+            $('.item.anim').removeClass('anim');
+        }, 800);
+    }
 }
 
 /**
@@ -329,7 +321,6 @@ function appendApp(screen, i) {
 */
 function defaultApps() {
     for (let i = 1; i < apps.length; i += 1) {
-        console.log(i, apps[i]);
         appendApp(i - 1, 0);
     }
 }
@@ -363,9 +354,8 @@ $(global.document).ready(() => {
         success: (data) => {
             const icons = data.screens[0].icons;
 
-            for (let i = 0; i < apps.length; i += 1) {
-                $('.dock .apps').append(`<div id="${id}" pos="${i}" class="item anim" style="left:${(i % 4) * itemWidth}px; top: 20px;"><div class="item-anim"><div class="icon" style="background-image: url(img/${icons[i].img})" data-name="${icons[i].name}" data-cat="${icons[i].cat}"></div></div>`);
-                id += 1;
+            for (let i = 0; i < icons.length; i += 1) {
+                $('.dock .apps').append(`<div id="${icons[i].id}" pos="${i}" class="item anim" style="left:${(i % 4) * itemWidth}px; top: 20px;"><div class="item-anim"><div class="icon" style="background-image: url(img/${icons[i].img})" data-name="${icons[i].name}" data-cat="${icons[i].cat}"></div></div>`);
             }
 
             apps = data.screens;
